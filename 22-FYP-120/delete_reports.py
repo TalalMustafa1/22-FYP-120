@@ -1,0 +1,75 @@
+from tkinter import *
+from PIL import ImageTk, Image
+from tkinter import messagebox
+from matplotlib.pyplot import title
+import pymysql
+
+class page_DeleteReports:
+    def __init__(self,fp):
+        
+        self.fp = fp
+        fp.title('Delete Reports')
+        fp.geometry("500x420+100+200")
+        fp.resizable(False,False)
+
+        
+        Frame_FPass = Frame(fp, bg='#5780B6')
+        Frame_FPass.place(x=0, y=0, height=410, width=490)
+        Frame_FPass.place(anchor='center', relx=0.5, rely=0.5)
+
+        # ====================================  TEXTBOX ENTRIES
+        
+        # ===============  Title Frame
+        title_FP = Label(Frame_FPass, text='Delete Records HERE ....', font=("Calibri",25,"bold"), bg='#5780B6', fg="lightgray")
+        title_FP.place(x=40 , y=20)
+
+        # ===============  ROW-1 USER EMAIL ENTRY
+        lbl_user = Label(Frame_FPass, text="Pic Id",font=("Goudy old style",15,"bold"), fg="lightgray", bg="#5780B6")
+        lbl_user.place(x=70, y=85)
+        self.txt_PicId = Entry(Frame_FPass, font=("times new roman",15),bg="lightgray")
+        self.txt_PicId.place(x=70, y=110, height=35, width=350)
+
+        
+        # ===============  LOGIN ENTRY
+        changepass_btn = Button(Frame_FPass, text="Delete Reports", command=self.Delete_User, fg="black", bg="lightgray", activebackground="#5780B6",activeforeground="white", font=("calibri",20))
+        changepass_btn.place(x=140, y=345, height=40, width=220)
+    
+    # ========================== SHOW PASSWORD FUNCTION
+    
+    
+    def clear(self):
+        self.txt_PicId.delete(0, END)
+    
+    def AdminPanel_FUnc(self):
+        import admin_manage_reports
+    
+    def Delete_User(self):
+        if self.txt_PicId.get() == "":
+            messagebox.showerror("Error","All Feilds are required !!", parent = self.fp)
+        else:
+            try:
+                con = pymysql.connect(host="localhost", user="root", password="", database="mfd_system")
+                cur = con.cursor()
+                cur.execute("select * from reports where Pic_Id=%s", self.txt_PicId.get())
+                row = cur.fetchone()
+                if row == None:
+                    messagebox.showerror("Error", "Record Not Exist !!", parent= self.fp)
+                else:
+                    cur.execute("DELETE from reports WHERE Pic_Id = %s",
+                                (
+                                    self.txt_PicId.get(),
+                                )
+                            )
+                    con.commit()
+                    con.close()
+                    messagebox.showinfo("Success", "Record Deleted Successfully !!", parent = self.fp)
+                    self.AdminPanel_FUnc()
+                    self.clear()
+                    
+            except Exception as es:
+                messagebox.showerror("Error", f"Error due to :  {str(es)}", parent = self.fp)
+
+
+fp = Tk()
+obj = page_DeleteReports(fp)
+fp.mainloop()
